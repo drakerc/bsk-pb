@@ -17,8 +17,10 @@ reload(sys)
 sys.setdefaultencoding('Cp1250')
 from Tkinter import *
 
-global maincolor
+global maincolor, error
 maincolor = '#0288d1'
+error = '#ff0000'
+
 
 class RailFence():
     def __init__(self):
@@ -28,9 +30,9 @@ class RailFence():
         rootB.minsize(width=500, height=200)
         rootB.configure(bg=maincolor)
 
-        plainTextL = Label(rootB, text='Tekst odkodowany: ', background = maincolor)
-        encryptedL = Label(rootB, text='Tekst zakodowany: ', background = maincolor)
-        linesL = Label(rootB, text='Ilosc linii (n): ', background = maincolor)
+        plainTextL = Label(rootB, text='Tekst odkodowany: ', background=maincolor)
+        encryptedL = Label(rootB, text='Tekst zakodowany: ', background=maincolor)
+        linesL = Label(rootB, text='Ilosc linii (n): ', background=maincolor)
 
         plainTextL.grid(row=1, sticky=W, padx=10, pady=10)
         encryptedL.grid(row=2, sticky=W, padx=10, pady=10)
@@ -42,7 +44,7 @@ class RailFence():
 
         plainTextText.grid(row=1, column=1, sticky=E + W, padx=10, pady=10)
         encryptedTextText.grid(row=2, column=1, sticky=E + W, padx=10, pady=10)
-        linesEntry.grid(row=3, column=1, sticky=E + W, padx=10, pady=10,)
+        linesEntry.grid(row=3, column=1, sticky=E + W, padx=10, pady=10)
 
         encodeB = Button(rootB, command=self.railFenceEncrypt, text='Zakoduj')
         decodeB = Button(rootB, command=self.railFenceDecrypt, text='Odkoduj')
@@ -51,16 +53,32 @@ class RailFence():
 
         rootB.mainloop()
 
-
     def railFenceLevelSetter(self, direction, currentLevel):
         if direction is 0:
             return currentLevel + 1
         return currentLevel - 1
 
-
     def railFenceEncrypt(self):
         plainText = plainTextText.get('1.0', 'end').rstrip()
-        linesAmount = int(linesEntry.get())
+        if not plainText:
+            r = Tk()
+            r.configure(bg=error)
+            r.title('Blad')
+            r.geometry('350x50')
+            rlbl = Label(r, text='\n[!] Nie podales tekstu do zakodowania.')
+            rlbl.pack()
+            return
+
+        try:
+            linesAmount = int(linesEntry.get())
+        except:
+            r = Tk()
+            r.configure(bg=error)
+            r.title('Blad')
+            r.geometry('350x50')
+            rlbl = Label(r, text='\n[!] Podales nieprawidlowa ilosc poziomow n.')
+            rlbl.pack()
+            return
 
         encryptedCharsByLevel = []
         # TODO: find a better, cleaner way to initialize an array
@@ -70,13 +88,13 @@ class RailFence():
 
         encryptedText = ''
         currentLevel = 0
-        direction = 0 # go down
+        direction = 0  # go down
         for character in plainText:
             encryptedCharsByLevel[currentLevel] += character
-            if currentLevel is linesAmount-1:
-                direction = 1 # change direction to go up
+            if currentLevel is linesAmount - 1:
+                direction = 1  # change direction to go up
             if currentLevel is 0:
-                direction = 0 # go down
+                direction = 0  # go down
 
             currentLevel = self.railFenceLevelSetter(direction, currentLevel)
 
@@ -103,14 +121,14 @@ class Menu():
         rootC.title('Krzysztof Kosinski, Blazej Kwapisz - program BSK')
         rootC.minsize(width=500, height=200)
 
-        railFenceB = Button(rootC,
-                       command=partial(RailFence), text='Algorytm Rail Fence', height=2)
+        railFenceB = Button(rootC, command=partial(RailFence), text='Algorytm Rail Fence', height=2)
         railFenceB.grid(column=1, sticky=E + W, padx=10, pady=10)
 
         przestawienia = Button(rootC,
-                       command=partial(PrzestawieniaMacierzowe), text='Przestawienia macierzowe', height=2)
+                               command=partial(PrzestawieniaMacierzowe), text='Przestawienia macierzowe', height=2)
         przestawienia.grid(column=1, sticky=E + W, padx=10, pady=10)
 
         rootC.mainloop()
+
 
 Menu()
