@@ -101,6 +101,7 @@ class RailFence():
         for value in encryptedCharsByLevel:
             encryptedText += value
 
+        encryptedTextText.delete('1.0', END)
         encryptedTextText.insert(END, encryptedText)
         return encryptedText
 
