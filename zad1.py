@@ -170,6 +170,101 @@ class PrzestawieniaMacierzowe():
         print 'hello'
 
 
+
+class TranspositionPassword():
+    def __init__(self):
+        global rootB, plainTextText, encryptedTextText, linesEntry
+        rootB = Toplevel()
+        rootB.title('Transpozycja z haslem')
+        rootB.minsize(width=500, height=200)
+        rootB.configure(bg=maincolor)
+
+        plainTextL = Label(rootB, text='Tekst odkodowany: ', background=maincolor)
+        encryptedL = Label(rootB, text='Tekst zakodowany: ', background=maincolor)
+        linesL = Label(rootB, text='Haslo (klucz): ', background=maincolor)
+
+        plainTextL.grid(row=1, sticky=W, padx=10, pady=10)
+        encryptedL.grid(row=2, sticky=W, padx=10, pady=10)
+        linesL.grid(row=3, sticky=W, padx=10, pady=10)
+
+        plainTextText = Text(rootB, height=5)
+        encryptedTextText = Text(rootB, height=5)
+        linesEntry = Entry(rootB)
+
+        plainTextText.grid(row=1, column=1, sticky=E + W, padx=10, pady=10)
+        encryptedTextText.grid(row=2, column=1, sticky=E + W, padx=10, pady=10)
+        linesEntry.grid(row=3, column=1, sticky=E + W, padx=10, pady=10)
+
+        encodeB = Button(rootB, command=self.encrypt, text='Zakoduj')
+        decodeB = Button(rootB, command=self.decrypt, text='Odkoduj')
+        encodeB.grid(columnspan=2, sticky=E + W, padx=10, pady=10)
+        decodeB.grid(columnspan=2, sticky=E + W, padx=10, pady=10)
+
+        rootB.mainloop()
+
+    def encrypt(self):
+        plainText = plainTextText.get('1.0', 'end').rstrip()
+        if not plainText:
+            r = Tk()
+            r.configure(bg=error)
+            r.title('Blad')
+            r.geometry('350x50')
+            rlbl = Label(r, text='\n[!] Nie podales tekstu do zakodowania.')
+            rlbl.pack()
+            return
+
+        key = linesEntry.get()
+        if not key:
+            r = Tk()
+            r.configure(bg=error)
+            r.title('Blad')
+            r.geometry('350x50')
+            rlbl = Label(r, text='\n[!] Podales nieprawidlowa ilosc poziomow n.')
+            rlbl.pack()
+            return
+
+        import collections
+        charList = [c for c in key]
+        charList.sort()
+        charListCounted = collections.Counter(charList)
+
+        numbered = []
+        # iterate over they sorted characters of our key
+        for key in charListCounted:
+            value = charListCounted[key]
+            if value > 1: # a letter is present more than once in a key
+                for i in range(value):
+                    numbered.append(key)
+            else:
+                numbered.append(key)
+        test = 5
+
+
+
+    def decrypt(self):
+        encryptedText = encryptedTextText.get('1.0', 'end').rstrip()
+        if not encryptedText:
+            r = Tk()
+            r.configure(bg=error)
+            r.title('Blad')
+            r.geometry('350x50')
+            rlbl = Label(r, text='\n[!] Nie podales tekstu do odkodowania.')
+            rlbl.pack()
+            return
+
+        try:
+            linesAmount = int(linesEntry.get())
+        except:
+            r = Tk()
+            r.configure(bg=error)
+            r.title('Blad')
+            r.geometry('350x50')
+            rlbl = Label(r, text='\n[!] Podales nieprawidlowa ilosc poziomow n.')
+            rlbl.pack()
+            return
+
+
+
 class Menu():
     def __init__(self):
         global rootC
@@ -184,6 +279,10 @@ class Menu():
         przestawienia = Button(rootC,
                                command=partial(PrzestawieniaMacierzowe), text='Przestawienia macierzowe', height=2)
         przestawienia.grid(column=1, sticky=E + W, padx=10, pady=10)
+
+        transpositionWithPasswordB = Button(rootC,
+                               command=partial(TranspositionPassword), text='Przestawienia macierzowe z haslem (2b)', height=2)
+        transpositionWithPasswordB.grid(column=1, sticky=E + W, padx=10, pady=10)
 
         rootC.mainloop()
 
