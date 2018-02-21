@@ -224,20 +224,25 @@ class TranspositionPassword():
             return
 
         import collections
+        import math
+
         charList = [c for c in key]
         charList.sort()
-        charListCounted = collections.Counter(charList)
 
-        numbered = []
-        # iterate over they sorted characters of our key
-        for key in charListCounted:
-            value = charListCounted[key]
-            if value > 1: # a letter is present more than once in a key
-                for i in range(value):
-                    numbered.append(key)
+        currentLine = 0
+        currentNumber = 0
+        passedNumbers = 0
+
+        encryptedArray = [["" for col in range(int(math.ceil(len(plainText) / len(key))))] for row in range(len(key))]
+
+        while currentNumber < len(key) and passedNumbers < len(plainText):
+            encryptedArray[currentLine][currentNumber] = key[passedNumbers]
+            passedNumbers += 1
+            if currentNumber is len(key)-1:
+                currentNumber = 0
+                currentLine += 1
             else:
-                numbered.append(key)
-        test = 5
+                currentNumber += 1
 
 
 
