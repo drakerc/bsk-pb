@@ -105,8 +105,64 @@ class RailFence():
         encryptedTextText.insert(END, encryptedText)
         return encryptedText
 
+
+    def offset(self, even, lines, line):
+        if line is 0 or line is lines - 1:
+            return (lines - 1) * 2
+
+        if even:
+            return 2 * line
+        return 2 * (lines - 1 - line)
+
     def railFenceDecrypt(self):
-        return 1
+        encryptedText = encryptedTextText.get('1.0', 'end').rstrip()
+        if not encryptedText:
+            r = Tk()
+            r.configure(bg=error)
+            r.title('Blad')
+            r.geometry('350x50')
+            rlbl = Label(r, text='\n[!] Nie podales tekstu do odkodowania.')
+            rlbl.pack()
+            return
+
+        try:
+            linesAmount = int(linesEntry.get())
+        except:
+            r = Tk()
+            r.configure(bg=error)
+            r.title('Blad')
+            r.geometry('350x50')
+            rlbl = Label(r, text='\n[!] Podales nieprawidlowa ilosc poziomow n.')
+            rlbl.pack()
+            return
+
+        decryptedChars = [["" for col in range(len(encryptedText))] for row in range(linesAmount)]
+        readCharacters = 0
+
+        for line in range(0, linesAmount):
+            even = False
+
+            if line is 0:
+                pos = 0
+            else:
+                pos = self.offset(1, linesAmount, line) / 2
+
+            while pos < len(encryptedText) and readCharacters is not len(encryptedText):
+                decryptedChars[line][pos] = encryptedText[readCharacters]
+                readCharacters += 1
+
+                pos += self.offset(even, linesAmount, line)
+                even = not even
+
+        decryptedString = ''
+        for i in range(len(encryptedText)):
+            for j in range(0, linesAmount):
+                decryptedString += decryptedChars[j][i]
+
+        plainTextText.delete('1.0', END)
+        plainTextText.insert(END, decryptedString)
+        return decryptedString
+
 
 
 class PrzestawieniaMacierzowe():
