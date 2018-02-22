@@ -69,7 +69,7 @@ class RailFence():
             return
 
         encryptedCharsByLevel = []
-        # TODO: find a better, cleaner way to initialize an array
+
         for i in range(0, linesAmount):
             encryptedCharsByLevel.append([])
             encryptedCharsByLevel[i] = ''
@@ -225,6 +225,7 @@ class TranspositionPassword():
         floatDivideLenghts = float(float(len(plainText)) / float(len(key)))
         encryptedArray = [["" for col in range(len(key))] for row in range(int(math.ceil(floatDivideLenghts)))]
 
+        # put our plaintext in 2D array that is Key-length wide
         while currentNumber < len(key) and passedNumbers < len(plainText):
             encryptedArray[currentLine][currentNumber] = plainText[passedNumbers]
             passedNumbers += 1
@@ -236,12 +237,14 @@ class TranspositionPassword():
 
         order = []
         listedChars = list(key)
+        # create the key-order (for example 1-5-3-4)
         for value in charList:
             position = listedChars.index(value)
             order.append(position)
             listedChars[position] = ' '
 
         encryptedText = ''
+        # encrypt our plaintext and put it in Decrypted box
         for columnNumber in order:
             for index, value in enumerate(encryptedArray):
                 encryptedText += encryptedArray[index][columnNumber]
