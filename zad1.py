@@ -1,15 +1,3 @@
-# def encrypt(text, keyNo):
-#     length = len(text)
-#     centerLength = length / (keyNo-1)
-#
-#     if length % (keyNo-1) == 0:
-#         outsideLengths = centerLength / 2
-#         differenceBetweenArrayElements = 2 * (keyNo-1)
-#         i = 0
-#         while (i < outsideLengths):
-#
-#
-#
 import sys
 from functools import partial
 
@@ -46,19 +34,19 @@ class RailFence():
         encryptedTextText.grid(row=2, column=1, sticky=E + W, padx=10, pady=10)
         linesEntry.grid(row=3, column=1, sticky=E + W, padx=10, pady=10)
 
-        encodeB = Button(rootB, command=self.railFenceEncrypt, text='Zakoduj')
-        decodeB = Button(rootB, command=self.railFenceDecrypt, text='Odkoduj')
+        encodeB = Button(rootB, command=self.encrypt, text='Zakoduj')
+        decodeB = Button(rootB, command=self.decrypt, text='Odkoduj')
         encodeB.grid(columnspan=2, sticky=E + W, padx=10, pady=10)
         decodeB.grid(columnspan=2, sticky=E + W, padx=10, pady=10)
 
         rootB.mainloop()
 
-    def railFenceLevelSetter(self, direction, currentLevel):
+    def levelSetter(self, direction, currentLevel):
         if direction is 0:
             return currentLevel + 1
         return currentLevel - 1
 
-    def railFenceEncrypt(self):
+    def encrypt(self):
         plainText = plainTextText.get('1.0', 'end').rstrip()
         if not plainText:
             r = Tk()
@@ -96,7 +84,7 @@ class RailFence():
             if currentLevel is 0:
                 direction = 0  # go down
 
-            currentLevel = self.railFenceLevelSetter(direction, currentLevel)
+            currentLevel = self.levelSetter(direction, currentLevel)
 
         for value in encryptedCharsByLevel:
             encryptedText += value
@@ -114,7 +102,7 @@ class RailFence():
             return 2 * line
         return 2 * (lines - 1 - line)
 
-    def railFenceDecrypt(self):
+    def decrypt(self):
         encryptedText = encryptedTextText.get('1.0', 'end').rstrip()
         if not encryptedText:
             r = Tk()
