@@ -233,7 +233,10 @@ class TranspositionPassword():
         currentNumber = 0
         passedNumbers = 0
 
-        encryptedArray = [["" for col in range(len(key))] for row in range(int(math.ceil(len(plainText) / len(key))))]
+        plainText = "".join(plainText.split())
+
+        floatDivideLenghts = float(float(len(plainText)) / float(len(key)))
+        encryptedArray = [["" for col in range(len(key))] for row in range(int(math.ceil(floatDivideLenghts)))]
 
         while currentNumber < len(key) and passedNumbers < len(plainText):
             encryptedArray[currentLine][currentNumber] = plainText[passedNumbers]
