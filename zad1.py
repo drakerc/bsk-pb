@@ -223,7 +223,6 @@ class TranspositionPassword():
             rlbl.pack()
             return
 
-        import collections
         import math
 
         charList = [c for c in key]
@@ -247,6 +246,21 @@ class TranspositionPassword():
             else:
                 currentNumber += 1
 
+        order = []
+        listedChars = list(key)
+        for value in charList:
+            position = listedChars.index(value)
+            order.append(position)
+            listedChars[position] = ' '
+
+        encryptedText = ''
+        for columnNumber in order:
+            for index, value in enumerate(encryptedArray):
+                encryptedText += encryptedArray[index][columnNumber]
+
+        encryptedTextText.delete('1.0', END)
+        encryptedTextText.insert(END, encryptedText)
+        return encryptedText
 
 
     def decrypt(self):
