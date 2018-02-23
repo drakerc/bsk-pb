@@ -155,8 +155,120 @@ class RailFence():
 
 class PrzestawieniaMacierzowe():
     def __init__(self):
-        print 'hello'
+        global rootB, plainTextText, encryptedTextText, key
+        key = '3-4-1-5-2'
+        rootB = Toplevel()
+        rootB.title('Transpozycja z ustalonym haslem (3-4-1-5-2)')
+        rootB.minsize(width=500, height=200)
+        rootB.configure(bg=maincolor)
 
+        plainTextL = Label(rootB, text='Tekst odkodowany: ', background=maincolor)
+        encryptedL = Label(rootB, text='Tekst zakodowany: ', background=maincolor)
+
+        plainTextL.grid(row=1, sticky=W, padx=10, pady=10)
+        encryptedL.grid(row=2, sticky=W, padx=10, pady=10)
+
+        plainTextText = Text(rootB, height=5)
+        encryptedTextText = Text(rootB, height=5)
+
+        plainTextText.grid(row=1, column=1, sticky=E + W, padx=10, pady=10)
+        encryptedTextText.grid(row=2, column=1, sticky=E + W, padx=10, pady=10)
+
+        encodeB = Button(rootB, command=self.encrypt, text='Zakoduj')
+        decodeB = Button(rootB, command=self.decrypt, text='Odkoduj')
+        encodeB.grid(columnspan=2, sticky=E + W, padx=10, pady=10)
+        decodeB.grid(columnspan=2, sticky=E + W, padx=10, pady=10)
+
+        rootB.mainloop()
+
+    def encrypt(self):
+        plain_text = plainTextText.get('1.0', 'end').rstrip()
+        if not plain_text:
+            r = Tk()
+            r.configure(bg=error)
+            r.title('Blad')
+            r.geometry('350x50')
+            rlbl = Label(r, text='\n[!] Nie podales tekstu do zakodowania.')
+            rlbl.pack()
+            return
+
+        key_arr = self.parse_key(key)
+        tab_height = int((len(plain_text) + len(key_arr) - 1) / len(key_arr))
+        matrix = [[0 for x in range(len(key_arr))] for y in range(tab_height)]
+
+        for i in range(tab_height):
+            for j in range(len(key_arr)):
+                matrix[i][j] = ''
+        # print(matrix)
+
+        count = 0
+        for i in range(tab_height):
+            for j in range(len(key_arr)):
+                if len(plain_text) > count:
+                    matrix[i][j] = plain_text[count]
+                    count += 1
+        # print(matrix)
+        encrypted_text = ''
+        for i in range(tab_height):
+            for j in range(len(key_arr)):
+                encrypted_text += matrix[i][key_arr[j] - 1]
+
+        encrypted = ''.join(encrypted_text).replace(".", "")
+        encryptedTextText.delete('1.0', END)
+        encryptedTextText.insert(END, encrypted)
+        return encrypted
+
+    def decrypt(self):
+        encrypted_text = encryptedTextText.get('1.0', 'end').rstrip()
+        if not encrypted_text:
+            r = Tk()
+            r.configure(bg=error)
+            r.title('Blad')
+            r.geometry('350x50')
+            rlbl = Label(r, text='\n[!] Nie podales tekstu do odkodowania.')
+            rlbl.pack()
+            return
+
+        key_arr = self.parse_key(key)
+
+        decrypted_text = ''
+
+        i = 0
+        while i < len(encrypted_text):
+            split_text = encrypted_text[i:i + 5]
+            # print(split_text)
+            if len(split_text) == 1:
+                decrypted_text += split_text[0]
+                break
+            elif len(split_text) == 2:
+                decrypted_text += split_text[0] + split_text[1]
+            elif len(split_text) == 3:
+                decrypted_text += split_text[1] + split_text[2] + split_text[0]
+            elif len(split_text) == 4:
+                decrypted_text += split_text[2] + split_text[3] + split_text[0] + split_text[1]
+            else:
+                decrypted_text += split_text[2]
+                decrypted_text += split_text[4]
+                decrypted_text += split_text[0]
+                decrypted_text += split_text[1]
+                decrypted_text += split_text[3]
+            i += 5
+        decrypted_clean = ''.join(decrypted_text).replace(".", "")
+        plainTextText.delete('1.0', END)
+        plainTextText.insert('1.0', decrypted_clean)
+        return decrypted_clean
+
+    def parse_key(self, key_str):
+        temp = key.split("-")
+        key_numbers = []
+
+        for i in temp:
+            try:
+                key_numbers.append(int(i))
+            except ValueError:
+                return None
+
+        return key_numbers
 
 
 class TranspositionPassword():
