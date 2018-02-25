@@ -319,7 +319,7 @@ class TranspositionPassword():
             r.configure(bg=error)
             r.title('Blad')
             r.geometry('350x50')
-            rlbl = Label(r, text='\n[!] Podales nieprawidlowa ilosc poziomow n.')
+            rlbl = Label(r, text='\n[!] Podales nieprawidlowy klucz.')
             rlbl.pack()
             return
 
@@ -367,8 +367,8 @@ class TranspositionPassword():
 
 
     def decrypt(self):
-        encryptedText = encryptedTextText.get('1.0', 'end').rstrip()
-        if not encryptedText:
+        encrypted_text = encryptedTextText.get('1.0', 'end').rstrip()
+        if not encrypted_text:
             r = Tk()
             r.configure(bg=error)
             r.title('Blad')
@@ -378,15 +378,62 @@ class TranspositionPassword():
             return
 
         try:
-            linesAmount = int(linesEntry.get())
+            key = linesEntry.get()
         except:
             r = Tk()
             r.configure(bg=error)
             r.title('Blad')
             r.geometry('350x50')
-            rlbl = Label(r, text='\n[!] Podales nieprawidlowa ilosc poziomow n.')
+            rlbl = Label(r, text='\n[!] Podales nieprawidlowy klucz.')
             rlbl.pack()
             return
+
+        # parsing key
+        import string
+
+        key_parsed = [0 for x in range(len(key))]
+        counter = 0
+        for k in range(len(string.ascii_uppercase[:30])):
+            for i in range(len(key)):
+                if key[i] == string.ascii_uppercase[k]:
+                    key_parsed[i] = counter
+                    counter += 1
+
+        # init matrix arrays
+        tab_height = int((len(encrypted_text) + len(key_parsed) - 1) / len(key_parsed))
+        matrix = [['' for x in range(len(key_parsed))] for y in range(tab_height)]
+        last_line_count = len(encrypted_text) - (tab_height - 1) * len(key_parsed)
+
+        decrypted_arr = ['' for x in range(2 * len(encrypted_text) + len(key_parsed))]
+        count = 0
+        for i in range(len(key_parsed)):
+            key_count = -1
+            for k in range(len(key_parsed)):
+                if key_parsed[k] == i:
+                    key_count = k
+                    break
+
+            for j in range(tab_height):
+                if (j == tab_height - 1) and (key_count >= last_line_count):
+                    break
+                matrix[j][key_count] = encrypted_text[count]
+                count += 1
+
+        count = 0
+        for i in range(tab_height):
+            for j in range(len(key_parsed)):
+                if matrix[i][j] == '':
+                    break
+                decrypted_arr[count] = matrix[i][j]
+                count += 1
+
+        decrypted_text = ''
+        for i in range(len(decrypted_arr)):
+            if decrypted_arr[i] == '':
+                plainTextText.delete('1.0', END)
+                plainTextText.insert(END, decrypted_text)
+                return decrypted_text
+            decrypted_text += decrypted_arr[i]
 
 
 
