@@ -94,14 +94,6 @@ class RailFence():
         return encryptedText
 
 
-    def offset(self, even, lines, line):
-        if line is 0 or line is lines - 1:
-            return (lines - 1) * 2
-
-        if even:
-            return 2 * line
-        return 2 * (lines - 1 - line)
-
     def decrypt(self):
         encryptedText = encryptedTextText.get('1.0', 'end').rstrip()
         if not encryptedText:
@@ -124,32 +116,22 @@ class RailFence():
             rlbl.pack()
             return
 
-        decryptedChars = [["" for col in range(len(encryptedText))] for row in range(linesAmount)]
-        readCharacters = 0
-
-        for line in range(0, linesAmount):
-            even = False
-
-            if line is 0:
-                pos = 0
-            else:
-                pos = self.offset(1, linesAmount, line) / 2
-
-            while pos < len(encryptedText) and readCharacters is not len(encryptedText):
-                decryptedChars[line][pos] = encryptedText[readCharacters]
-                readCharacters += 1
-
-                pos += self.offset(even, linesAmount, line)
-                even = not even
-
-        decryptedString = ''
-        for i in range(len(encryptedText)):
-            for j in range(0, linesAmount):
-                decryptedString += decryptedChars[j][i]
+        #encryptedText = encryptedText.replace(" ", "")
+        decryptedText = list(encryptedText)
+        i = 0
+        for row in range(0, linesAmount):
+            currentPosition = row
+            while currentPosition < len(decryptedText):
+                decryptedText[currentPosition] = encryptedText[i]
+                i += 1
+                if row is 0 or row is linesAmount - 1:
+                    currentPosition += 2 * linesAmount - 2
+                else:
+                    currentPosition += (linesAmount - 1 - (currentPosition) % (linesAmount - 1)) * 2
 
         plainTextText.delete('1.0', END)
-        plainTextText.insert(END, decryptedString)
-        return decryptedString
+        plainTextText.insert(END, "".join(decryptedText))
+        return "".join(decryptedText)
 
 
 
