@@ -202,6 +202,11 @@ class PrzestawieniaMacierzowe():
 
     def decrypt(self):
         encrypted_text = encryptedTextText.get('1.0', 'end').rstrip()
+        encrypted_text = encrypted_text.replace(".", "")
+        encrypted_text = encrypted_text.replace(".", "")
+        encrypted_text = encrypted_text.replace(",", "")
+        encrypted_text = encrypted_text.replace("\"", "")
+
         if not encrypted_text:
             r = Tk()
             r.configure(bg=error)
@@ -418,6 +423,130 @@ class TranspositionPassword():
             decrypted_text += decrypted_arr[i]
 
 
+class Transposition2CPassword():
+    def __init__(self):
+        global rootB, plainTextText, encryptedTextText, linesEntry
+        rootB = Toplevel()
+        rootB.title('Transpozycja z haslem')
+        rootB.minsize(width=500, height=200)
+        rootB.configure(bg=maincolor)
+
+        plainTextL = Label(rootB, text='Tekst odkodowany: ', background=maincolor)
+        encryptedL = Label(rootB, text='Tekst zakodowany: ', background=maincolor)
+        linesL = Label(rootB, text='Haslo (klucz): ', background=maincolor)
+
+        plainTextL.grid(row=1, sticky=W, padx=10, pady=10)
+        encryptedL.grid(row=2, sticky=W, padx=10, pady=10)
+        linesL.grid(row=3, sticky=W, padx=10, pady=10)
+
+        plainTextText = Text(rootB, height=5)
+        encryptedTextText = Text(rootB, height=5)
+        linesEntry = Entry(rootB)
+
+        plainTextText.grid(row=1, column=1, sticky=E + W, padx=10, pady=10)
+        encryptedTextText.grid(row=2, column=1, sticky=E + W, padx=10, pady=10)
+        linesEntry.grid(row=3, column=1, sticky=E + W, padx=10, pady=10)
+
+        encodeB = Button(rootB, command=self.encrypt, text='Zakoduj')
+        decodeB = Button(rootB, command=self.decrypt, text='Odkoduj')
+        encodeB.grid(columnspan=2, sticky=E + W, padx=10, pady=10)
+        decodeB.grid(columnspan=2, sticky=E + W, padx=10, pady=10)
+
+        rootB.mainloop()
+
+    def encrypt(self):
+        plainText = plainTextText.get('1.0', 'end').rstrip()
+        if not plainText:
+            r = Tk()
+            r.configure(bg=error)
+            r.title('Blad')
+            r.geometry('350x50')
+            rlbl = Label(r, text='\n[!] Nie podales tekstu do zakodowania.')
+            rlbl.pack()
+            return
+
+        key = linesEntry.get()
+        if not key:
+            r = Tk()
+            r.configure(bg=error)
+            r.title('Blad')
+            r.geometry('350x50')
+            rlbl = Label(r, text='\n[!] Podales nieprawidlowy klucz.')
+            rlbl.pack()
+            return
+
+        import math
+
+        charList = [c for c in key]
+        charList.sort()
+
+        currentLine = 0
+
+        currentNumber = 0
+        passedNumbers = 0
+
+        plainText = "".join(plainText.split())
+
+        floatDivideLenghts = float(float(len(plainText)) / float(len(key)))
+
+        encryptedArray = [["" for col in range(len(key))] for row in range(len(plainText))]
+
+        order = []
+        listedChars = list(key)
+        # create the key-order (for example 1-5-3-4)
+        for value in charList:
+            position = listedChars.index(value)
+            order.append(position)
+            listedChars[position] = ' '
+
+        charactersAmount = 0
+
+
+        #for character in range(0, len(plainText)):
+        while passedNumbers < len(plainText):
+            currentCharacterAmount = 0
+            while currentCharacterAmount < charactersAmount+1:
+                encryptedArray[currentLine][currentCharacterAmount] = plainText[passedNumbers]
+                passedNumbers += 1
+                currentCharacterAmount += 1
+            nextOrderingCharacter = order.index(currentLine+1)
+            charactersAmount = nextOrderingCharacter
+            currentLine += 1
+
+
+        encryptedText = ''
+        # encrypt our plaintext and put it in Decrypted box
+        for columnNumber in order:
+            for index, value in enumerate(encryptedArray):
+                encryptedText += encryptedArray[index][columnNumber]
+
+        encryptedTextText.delete('1.0', END)
+        encryptedTextText.insert(END, encryptedText)
+        return encryptedText
+
+
+    def decrypt(self):
+        encrypted_text = encryptedTextText.get('1.0', 'end').rstrip()
+        if not encrypted_text:
+            r = Tk()
+            r.configure(bg=error)
+            r.title('Blad')
+            r.geometry('350x50')
+            rlbl = Label(r, text='\n[!] Nie podales tekstu do odkodowania.')
+            rlbl.pack()
+            return
+
+        try:
+            key = linesEntry.get()
+        except:
+            r = Tk()
+            r.configure(bg=error)
+            r.title('Blad')
+            r.geometry('350x50')
+            rlbl = Label(r, text='\n[!] Podales nieprawidlowy klucz.')
+            rlbl.pack()
+            return
+
 
 class Menu():
     def __init__(self):
@@ -437,6 +566,10 @@ class Menu():
         transpositionWithPasswordB = Button(rootC,
                                command=partial(TranspositionPassword), text='Przestawienia macierzowe z haslem (2b)', height=2)
         transpositionWithPasswordB.grid(column=1, sticky=E + W, padx=10, pady=10)
+
+        transpositionWithPassword2CB = Button(rootC,
+                               command=partial(Transposition2CPassword), text='Przestawienia macierzowe z haslem (2C)', height=2)
+        transpositionWithPassword2CB.grid(column=1, sticky=E + W, padx=10, pady=10)
 
         rootC.mainloop()
 
