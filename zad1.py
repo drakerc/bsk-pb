@@ -509,7 +509,7 @@ class Transposition2CPassword():
                 encryptedArray[currentLine][currentCharacterAmount] = plainText[passedNumbers]
                 passedNumbers += 1
                 currentCharacterAmount += 1
-            nextOrderingCharacter = order.index(currentLine+1)
+            nextOrderingCharacter = order[currentLine+1]
             charactersAmount = nextOrderingCharacter
             currentLine += 1
 
