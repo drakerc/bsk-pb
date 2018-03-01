@@ -484,8 +484,7 @@ class Transposition2CPassword():
         # remove spaces from plaintext
         plainText = "".join(plainText.split())
 
-        #floatDivideLenghts = float(float(len(plainText)) / float(len(key)))
-        encryptedArray = [["" for col in range(len(key))] for row in range(len(plainText))]
+        encryptedArray = []
         order = []
         listedChars = list(key)
         # create the key-order (for example 1-5-3-4)
@@ -498,10 +497,12 @@ class Transposition2CPassword():
 
         while passedNumbers < len(plainText):
             currentCharacterAmount = 0
+            row = []
             while currentCharacterAmount < charactersAmount+1 and passedNumbers < len(plainText):
-                encryptedArray[currentLine][currentCharacterAmount] = plainText[passedNumbers]
+                row.append(plainText[passedNumbers])
                 passedNumbers += 1
                 currentCharacterAmount += 1
+            encryptedArray.append(row)
             orderingLine = currentLine + 1
             if orderingLine > len(order) - 1:
                 orderingLine = 1
@@ -514,7 +515,10 @@ class Transposition2CPassword():
         # encrypt our plaintext and put it in Decrypted box
         for columnNumber in order:
             for index, value in enumerate(encryptedArray):
-                encryptedText += encryptedArray[index][columnNumber]
+                try:
+                    encryptedText += encryptedArray[index][columnNumber]
+                except:
+                    pass
 
         encryptedTextText.delete('1.0', END)
         encryptedTextText.insert(END, encryptedText)
