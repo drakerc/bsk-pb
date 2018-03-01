@@ -475,22 +475,17 @@ class Transposition2CPassword():
             rlbl.pack()
             return
 
-        import math
-
         charList = [c for c in key]
         charList.sort()
 
         currentLine = 0
-
-        currentNumber = 0
         passedNumbers = 0
 
+        # remove spaces from plaintext
         plainText = "".join(plainText.split())
 
-        floatDivideLenghts = float(float(len(plainText)) / float(len(key)))
-
+        #floatDivideLenghts = float(float(len(plainText)) / float(len(key)))
         encryptedArray = [["" for col in range(len(key))] for row in range(len(plainText))]
-
         order = []
         listedChars = list(key)
         # create the key-order (for example 1-5-3-4)
@@ -501,15 +496,16 @@ class Transposition2CPassword():
 
         charactersAmount = 0
 
-
-        #for character in range(0, len(plainText)):
         while passedNumbers < len(plainText):
             currentCharacterAmount = 0
-            while currentCharacterAmount < charactersAmount+1:
+            while currentCharacterAmount < charactersAmount+1 and passedNumbers < len(plainText):
                 encryptedArray[currentLine][currentCharacterAmount] = plainText[passedNumbers]
                 passedNumbers += 1
                 currentCharacterAmount += 1
-            nextOrderingCharacter = order[currentLine+1]
+            orderingLine = currentLine + 1
+            if orderingLine > len(order) - 1:
+                orderingLine = 1
+            nextOrderingCharacter = order[orderingLine]
             charactersAmount = nextOrderingCharacter
             currentLine += 1
 
