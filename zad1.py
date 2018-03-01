@@ -26,8 +26,8 @@ class RailFence():
         encryptedL.grid(row=2, sticky=W, padx=10, pady=10)
         linesL.grid(row=3, sticky=W, padx=10, pady=10)
 
-        plainTextText = Text(rootB, height=5)
-        encryptedTextText = Text(rootB, height=5)
+        plainTextText = Text(rootB, height=15)
+        encryptedTextText = Text(rootB, height=15)
         linesEntry = Entry(rootB)
 
         plainTextText.grid(row=1, column=1, sticky=E + W, padx=10, pady=10)
@@ -150,8 +150,8 @@ class PrzestawieniaMacierzowe():
         plainTextL.grid(row=1, sticky=W, padx=10, pady=10)
         encryptedL.grid(row=2, sticky=W, padx=10, pady=10)
 
-        plainTextText = Text(rootB, height=5)
-        encryptedTextText = Text(rootB, height=5)
+        plainTextText = Text(rootB, height=15)
+        encryptedTextText = Text(rootB, height=15)
 
         plainTextText.grid(row=1, column=1, sticky=E + W, padx=10, pady=10)
         encryptedTextText.grid(row=2, column=1, sticky=E + W, padx=10, pady=10)
@@ -274,8 +274,8 @@ class TranspositionPassword():
         encryptedL.grid(row=2, sticky=W, padx=10, pady=10)
         linesL.grid(row=3, sticky=W, padx=10, pady=10)
 
-        plainTextText = Text(rootB, height=5)
-        encryptedTextText = Text(rootB, height=5)
+        plainTextText = Text(rootB, height=15)
+        encryptedTextText = Text(rootB, height=15)
         linesEntry = Entry(rootB)
 
         plainTextText.grid(row=1, column=1, sticky=E + W, padx=10, pady=10)
@@ -439,8 +439,8 @@ class Transposition2CPassword():
         encryptedL.grid(row=2, sticky=W, padx=10, pady=10)
         linesL.grid(row=3, sticky=W, padx=10, pady=10)
 
-        plainTextText = Text(rootB, height=5)
-        encryptedTextText = Text(rootB, height=5)
+        plainTextText = Text(rootB, height=15)
+        encryptedTextText = Text(rootB, height=15)
         linesEntry = Entry(rootB)
 
         plainTextText.grid(row=1, column=1, sticky=E + W, padx=10, pady=10)
