@@ -609,6 +609,33 @@ class Transposition2CPassword():
             decryptedArray.append(verticalColumn)
         test = 1
 
+        flippedOrder = ['' for x in range(len(order))]
+        for index, value in enumerate(order):
+            flippedOrder[value] = index
+        test = 2
+
+
+        newArray = []
+        for i in flippedOrder:
+            newArray.append(decryptedArray[i])
+
+        readCharacters = 0
+        currentlyReadLine = 0
+        decryptedText = ''
+        while readCharacters < len(encrypted_text):
+            tempAmountOfCharacters = order[currentlyReadLine]
+            tempCharactersRead = 0
+            while tempCharactersRead < tempAmountOfCharacters+1:
+                processedCharacter = newArray[tempCharactersRead][0]
+                del newArray[tempCharactersRead][0]
+                decryptedText += processedCharacter
+                tempCharactersRead += 1
+                readCharacters += 1
+            currentlyReadLine += 1
+
+        plainTextText.delete('1.0', END)
+        plainTextText.insert('1.0', decryptedText)
+
 class Menu():
     def __init__(self):
         global rootC
