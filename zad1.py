@@ -548,6 +548,67 @@ class Transposition2CPassword():
             return
 
 
+        charList = [c for c in key]
+        charList.sort()
+
+        currentLine = 0
+        passedNumbers = 0
+
+        # remove spaces from plaintext
+
+        order = []
+        listedChars = list(key)
+        # create the key-order (for example 1-5-3-4)
+        for value in charList:
+            position = listedChars.index(value)
+            order.append(position)
+            listedChars[position] = ' '
+
+        charactersAmount = 0
+        tempEncryptedArray = []
+        while passedNumbers < len(encrypted_text):
+            currentRow = 0
+            currentCharacterAmount = order[currentRow]
+            row = []
+            while currentCharacterAmount < charactersAmount+1:
+                row.append('X')
+                passedNumbers += 1
+                currentCharacterAmount += 1
+            tempEncryptedArray.append(row)
+            orderingLine = currentLine + 1
+            if orderingLine > len(order) - 1:
+                orderingLine = 1
+            nextOrderingCharacter = order[orderingLine]
+            charactersAmount = nextOrderingCharacter
+            currentLine += 1
+
+
+        #currentColumn = 0
+        currentProcessedCharacter = 0
+
+        decryptedArray = []
+
+        currentSymbol = 0
+
+        #while currentColumn < len(key):
+        for index, value in enumerate(order):
+            verticalSymbolCounter = 0
+            verticalColumn = []
+            for index2, value2 in enumerate(tempEncryptedArray):
+                try:
+                    aVariableThatCanFailIfItDoesNotExist = tempEncryptedArray[index2][value]
+                    verticalSymbolCounter += 1
+                except:
+                    pass
+            #currentSymbol = 0
+            localSymbolCounter = 0
+            while localSymbolCounter < verticalSymbolCounter:
+                verticalColumn.append(encrypted_text[currentSymbol])
+                currentSymbol += 1
+                localSymbolCounter += 1
+            decryptedArray.append(verticalColumn)
+        test = 1
+
 class Menu():
     def __init__(self):
         global rootC
