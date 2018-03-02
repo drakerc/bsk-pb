@@ -503,12 +503,28 @@ class Transposition2CPassword():
                 passedNumbers += 1
                 currentCharacterAmount += 1
             encryptedArray.append(row)
+
+
             orderingLine = currentLine + 1
+
             if orderingLine > len(order) - 1:
-                orderingLine = 1
-            nextOrderingCharacter = order[orderingLine]
-            charactersAmount = nextOrderingCharacter
-            currentLine += 1
+                orderingLine = 0
+                currentLine = 0
+                nextOrderingCharacter = order[orderingLine]
+                charactersAmount = nextOrderingCharacter
+            else:
+                nextOrderingCharacter = order[orderingLine]
+                charactersAmount = nextOrderingCharacter
+                currentLine += 1
+
+            #orderingLine = currentLine + 1
+
+            #if orderingLine > len(order) - 1:
+            #    orderingLine = 0
+
+            #nextOrderingCharacter = order[orderingLine]
+            #charactersAmount = nextOrderingCharacter
+            #currentLine += 1
 
 
         encryptedText = ''
@@ -573,17 +589,24 @@ class Transposition2CPassword():
             currentRow = 0
             currentCharacterAmount = order[currentRow]
             row = []
-            while currentCharacterAmount < charactersAmount+1:
+            while currentCharacterAmount < charactersAmount+1 and passedNumbers < len(encrypted_text):
                 row.append('X')
                 passedNumbers += 1
                 currentCharacterAmount += 1
             tempEncryptedArray.append(row)
+
+
             orderingLine = currentLine + 1
+
             if orderingLine > len(order) - 1:
-                orderingLine = 1
-            nextOrderingCharacter = order[orderingLine]
-            charactersAmount = nextOrderingCharacter
-            currentLine += 1
+                orderingLine = 0
+                currentLine = 0
+                nextOrderingCharacter = order[orderingLine]
+                charactersAmount = nextOrderingCharacter
+            else:
+                nextOrderingCharacter = order[orderingLine]
+                charactersAmount = nextOrderingCharacter
+                currentLine += 1
 
 
         decryptedArray = []
@@ -600,7 +623,8 @@ class Transposition2CPassword():
                 except:
                     pass
             localSymbolCounter = 0
-            while localSymbolCounter < verticalSymbolCounter:
+#            while localSymbolCounter < verticalSymbolCounter:
+            while localSymbolCounter < verticalSymbolCounter and currentSymbol < len(encrypted_text):
                 verticalColumn.append(encrypted_text[currentSymbol])
                 currentSymbol += 1
                 localSymbolCounter += 1
@@ -621,14 +645,23 @@ class Transposition2CPassword():
         currentlyReadLine = 0
         decryptedText = ''
         while readCharacters < len(encrypted_text):
+            test = len(order)
+            if currentlyReadLine >= len(order):
+                currentlyReadLine = 0
             tempAmountOfCharacters = order[currentlyReadLine]
             tempCharactersRead = 0
             while tempCharactersRead < tempAmountOfCharacters+1:
-                processedCharacter = newArray[tempCharactersRead][0]
-                del newArray[tempCharactersRead][0]
-                decryptedText += processedCharacter
-                tempCharactersRead += 1
-                readCharacters += 1
+                try:
+                    processedCharacter = newArray[tempCharactersRead][0]
+                    del newArray[tempCharactersRead][0]
+                    decryptedText += processedCharacter
+                    #tempCharactersRead += 1
+                    #readCharacters += 1
+                except:
+                    pass
+                finally:
+                    tempCharactersRead += 1
+                    readCharacters += 1
             currentlyReadLine += 1
 
         plainTextText.delete('1.0', END)
