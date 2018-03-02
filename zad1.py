@@ -647,6 +647,224 @@ class Transposition2CPassword():
         plainTextText.delete('1.0', END)
         plainTextText.insert('1.0', decryptedText)
 
+class Caesar():
+    def __init__(self):
+        global rootB, plainTextText, encryptedTextText, linesEntry
+        rootB = Toplevel()
+        rootB.title('Szyfr Cezara')
+        rootB.minsize(width=500, height=200)
+        rootB.configure(bg=maincolor)
+
+        plainTextL = Label(rootB, text='Tekst odkodowany: ', background=maincolor)
+        encryptedL = Label(rootB, text='Tekst zakodowany: ', background=maincolor)
+
+        plainTextL.grid(row=1, sticky=W, padx=10, pady=10)
+        encryptedL.grid(row=2, sticky=W, padx=10, pady=10)
+
+        plainTextText = Text(rootB, height=15)
+        encryptedTextText = Text(rootB, height=15)
+
+        plainTextText.grid(row=1, column=1, sticky=E + W, padx=10, pady=10)
+        encryptedTextText.grid(row=2, column=1, sticky=E + W, padx=10, pady=10)
+
+        encodeB = Button(rootB, command=self.encrypt, text='Zakoduj')
+        decodeB = Button(rootB, command=self.decrypt, text='Odkoduj')
+        encodeB.grid(columnspan=2, sticky=E + W, padx=10, pady=10)
+        decodeB.grid(columnspan=2, sticky=E + W, padx=10, pady=10)
+
+        rootB.mainloop()
+
+    def encrypt(self):
+        plain_text = plainTextText.get('1.0', 'end').rstrip()
+        if not plain_text:
+            r = Tk()
+            r.configure(bg=error)
+            r.title('Blad')
+            r.geometry('350x50')
+            rlbl = Label(r, text='\n[!] Nie podales tekstu do zakodowania.')
+            rlbl.pack()
+            return
+
+        import re, string
+
+        plain_text = re.sub("[^a-zA-Z]", "", plain_text).upper()
+        k0 = 15
+        k1 = 11
+        n = 26
+        euler = 12
+
+        encrypted_text = ""
+        for i in range(len(plain_text)):
+            current_index = string.ascii_uppercase.index(plain_text[i])
+            encrypted_index = (current_index * k1 + k0) % n
+            encrypted_text += string.ascii_uppercase[encrypted_index]
+
+        encryptedTextText.delete('1.0', END)
+        encryptedTextText.insert(END, encrypted_text)
+        return encrypted_text
+
+
+    def decrypt(self):
+        encrypted_text = encryptedTextText.get('1.0', 'end').rstrip()
+        if not encrypted_text:
+            r = Tk()
+            r.configure(bg=error)
+            r.title('Blad')
+            r.geometry('350x50')
+            rlbl = Label(r, text='\n[!] Nie podales tekstu do zakodowania.')
+            rlbl.pack()
+            return
+
+        import re, string
+
+        encrypted_text = re.sub("[^a-zA-Z]", "", encrypted_text).upper()
+        k0 = 15
+        k1 = 11
+        n = 26
+        euler = 12
+
+        decrypted_text = ""
+        for i in range(len(encrypted_text)):
+            current_index = string.ascii_uppercase.index(encrypted_text[i])
+            decrypted_index = (current_index + (n - k0)) * pow(k1, euler - 1) % n
+            decrypted_text += string.ascii_uppercase[decrypted_index]
+
+        plainTextText.delete('1.0', END)
+        plainTextText.insert(END, decrypted_text)
+        return decrypted_text
+
+class Vigenere():
+    def __init__(self):
+        global rootB, plainTextText, encryptedTextText, linesEntry
+        rootB = Toplevel()
+        rootB.title('Szyfr Vigenere\'a')
+        rootB.minsize(width=500, height=200)
+        rootB.configure(bg=maincolor)
+
+        plainTextL = Label(rootB, text='Tekst odkodowany: ', background=maincolor)
+        encryptedL = Label(rootB, text='Tekst zakodowany: ', background=maincolor)
+        linesL = Label(rootB, text='Haslo (klucz): ', background=maincolor)
+
+        plainTextL.grid(row=1, sticky=W, padx=10, pady=10)
+        encryptedL.grid(row=2, sticky=W, padx=10, pady=10)
+        linesL.grid(row=3, sticky=W, padx=10, pady=10)
+
+        plainTextText = Text(rootB, height=15)
+        encryptedTextText = Text(rootB, height=15)
+        linesEntry = Entry(rootB)
+
+        plainTextText.grid(row=1, column=1, sticky=E + W, padx=10, pady=10)
+        encryptedTextText.grid(row=2, column=1, sticky=E + W, padx=10, pady=10)
+        linesEntry.grid(row=3, column=1, sticky=E + W, padx=10, pady=10)
+
+        encodeB = Button(rootB, command=self.encrypt, text='Zakoduj')
+        decodeB = Button(rootB, command=self.decrypt, text='Odkoduj')
+        encodeB.grid(columnspan=2, sticky=E + W, padx=10, pady=10)
+        decodeB.grid(columnspan=2, sticky=E + W, padx=10, pady=10)
+
+        rootB.mainloop()
+
+    def encrypt(self):
+        plain_text = plainTextText.get('1.0', 'end').rstrip()
+        if not plain_text:
+            r = Tk()
+            r.configure(bg=error)
+            r.title('Blad')
+            r.geometry('350x50')
+            rlbl = Label(r, text='\n[!] Nie podales tekstu do zakodowania.')
+            rlbl.pack()
+            return
+
+        key = linesEntry.get()
+        if not key or len(key) > plain_text:
+            r = Tk()
+            r.configure(bg=error)
+            r.title('Blad')
+            r.geometry('350x50')
+            rlbl = Label(r, text='\n[!] Wprowadzono nieprawidlowy klucz.')
+            rlbl.pack()
+            return
+
+        import re, string
+
+        plain_text = re.sub("[^a-zA-Z]", "", plain_text).upper()
+        key = re.sub("[^a-zA-Z]", "", key).upper()
+
+        # check if key length is < decrypted text length
+        if len(key) < len(plain_text):
+            i = 0
+            original_key_len = len(key)
+            while len(key) != len(plain_text):
+                key += key[i % original_key_len]
+                i += 1
+        elif len(key) > len(plain_text):
+            print('len(key) > len(string)!')
+            return None
+
+        encrypted_text = ""
+        plain_array = list(plain_text.upper())
+        for i in range(len(plain_array)):
+            # translating plain char -> encrypted char
+            index_plain = string.ascii_uppercase.index(plain_array[i])
+            index_key = string.ascii_uppercase.index(key[i])
+            encrypted_text += string.ascii_uppercase[(index_plain + index_key) % len(string.ascii_uppercase)]
+
+        encryptedTextText.delete('1.0', END)
+        encryptedTextText.insert(END, encrypted_text)
+        return encrypted_text
+
+
+
+    def decrypt(self):
+        encrypted_text = encryptedTextText.get('1.0', 'end').rstrip()
+        if not encrypted_text:
+            r = Tk()
+            r.configure(bg=error)
+            r.title('Blad')
+            r.geometry('350x50')
+            rlbl = Label(r, text='\n[!] Nie podales tekstu do zakodowania.')
+            rlbl.pack()
+            return
+
+        key = linesEntry.get()
+        if not key or len(key) > encrypted_text:
+            r = Tk()
+            r.configure(bg=error)
+            r.title('Blad')
+            r.geometry('350x50')
+            rlbl = Label(r, text='\n[!] Wprowadzono nieprawidlowy klucz.')
+            rlbl.pack()
+            return
+
+        import re, string
+
+        encrypted_text = re.sub("[^a-zA-Z]", "", encrypted_text).upper()
+        key = re.sub("[^a-zA-Z]", "", key).upper()
+
+        # check if key length is < encrypted text length
+        if len(key) < len(encrypted_text):
+            i = 0
+            original_key_len = len(key)
+            while len(key) != len(encrypted_text):
+                key += key[i % original_key_len]
+                i += 1
+        elif len(key) > len(encrypted_text):
+            print('len(key) > len(string)!')
+            return None
+
+        decrypted_text = ""
+        encrypted_array = list(encrypted_text)
+        for i in range(len(encrypted_array)):
+            # translating encrypted char -> decrypted
+            index_encrypted = string.ascii_uppercase.index(encrypted_array[i])
+            index_key = string.ascii_uppercase.index(key[i])
+            decrypted_text += string.ascii_uppercase[(index_encrypted - index_key) % len(string.ascii_uppercase)]
+
+        plainTextText.delete('1.0', END)
+        plainTextText.insert(END, decrypted_text)
+        return decrypted_text
+
+
 class Menu():
     def __init__(self):
         global rootC
@@ -669,6 +887,14 @@ class Menu():
         transpositionWithPassword2CB = Button(rootC,
                                command=partial(Transposition2CPassword), text='Przestawienia macierzowe z haslem (2C)', height=2)
         transpositionWithPassword2CB.grid(column=1, sticky=E + W, padx=10, pady=10)
+
+        caesarB = Button(rootC,
+                    command=partial(Caesar), text='Szyfr Cezara', height=2)
+        caesarB.grid(column=1, sticky=E + W, padx=10, pady=10)
+
+        caesarB = Button(rootC,
+                    command=partial(Vigenere), text='Szyfr Vigenere\'a', height=2)
+        caesarB.grid(column=1, sticky=E + W, padx=10, pady=10)
 
         rootC.mainloop()
 
