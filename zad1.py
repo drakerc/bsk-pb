@@ -555,6 +555,8 @@ class Transposition2CPassword():
         passedNumbers = 0
 
         # remove spaces from plaintext
+        encrypted_text = "".join(encrypted_text.split())
+
 
         order = []
         listedChars = list(key)
@@ -566,6 +568,7 @@ class Transposition2CPassword():
 
         charactersAmount = 0
         tempEncryptedArray = []
+        # create a 2D mock-array that looks the same as the "encrypted" array, but is filled with X characters for now
         while passedNumbers < len(encrypted_text):
             currentRow = 0
             currentCharacterAmount = order[currentRow]
@@ -583,14 +586,10 @@ class Transposition2CPassword():
             currentLine += 1
 
 
-        #currentColumn = 0
-        currentProcessedCharacter = 0
-
         decryptedArray = []
-
         currentSymbol = 0
 
-        #while currentColumn < len(key):
+        # create the encryption array - the one that looks like the array specified on CEZ, but in wrong order for now
         for index, value in enumerate(order):
             verticalSymbolCounter = 0
             verticalColumn = []
@@ -600,25 +599,24 @@ class Transposition2CPassword():
                     verticalSymbolCounter += 1
                 except:
                     pass
-            #currentSymbol = 0
             localSymbolCounter = 0
             while localSymbolCounter < verticalSymbolCounter:
                 verticalColumn.append(encrypted_text[currentSymbol])
                 currentSymbol += 1
                 localSymbolCounter += 1
             decryptedArray.append(verticalColumn)
-        test = 1
 
+        # replace index with values in our order, so we'll have a proper order of columns from left to right
         flippedOrder = ['' for x in range(len(order))]
         for index, value in enumerate(order):
             flippedOrder[value] = index
-        test = 2
 
-
+        # create a new array that looks exactly like the array on CEZ with a proper column ordering from left to right
         newArray = []
         for i in flippedOrder:
             newArray.append(decryptedArray[i])
 
+        # start reading the left-to-right array and add its values from its column by using the first letter from a row, removing it and going down as many times as amounts (orders)
         readCharacters = 0
         currentlyReadLine = 0
         decryptedText = ''
