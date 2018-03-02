@@ -504,9 +504,7 @@ class Transposition2CPassword():
                 currentCharacterAmount += 1
             encryptedArray.append(row)
 
-
             orderingLine = currentLine + 1
-
             if orderingLine > len(order) - 1:
                 orderingLine = 0
                 currentLine = 0
@@ -516,16 +514,6 @@ class Transposition2CPassword():
                 nextOrderingCharacter = order[orderingLine]
                 charactersAmount = nextOrderingCharacter
                 currentLine += 1
-
-            #orderingLine = currentLine + 1
-
-            #if orderingLine > len(order) - 1:
-            #    orderingLine = 0
-
-            #nextOrderingCharacter = order[orderingLine]
-            #charactersAmount = nextOrderingCharacter
-            #currentLine += 1
-
 
         encryptedText = ''
         # encrypt our plaintext and put it in Decrypted box
@@ -573,7 +561,6 @@ class Transposition2CPassword():
         # remove spaces from plaintext
         encrypted_text = "".join(encrypted_text.split())
 
-
         order = []
         listedChars = list(key)
         # create the key-order (for example 1-5-3-4)
@@ -595,9 +582,7 @@ class Transposition2CPassword():
                 currentCharacterAmount += 1
             tempEncryptedArray.append(row)
 
-
             orderingLine = currentLine + 1
-
             if orderingLine > len(order) - 1:
                 orderingLine = 0
                 currentLine = 0
@@ -607,7 +592,6 @@ class Transposition2CPassword():
                 nextOrderingCharacter = order[orderingLine]
                 charactersAmount = nextOrderingCharacter
                 currentLine += 1
-
 
         decryptedArray = []
         currentSymbol = 0
@@ -623,7 +607,6 @@ class Transposition2CPassword():
                 except:
                     pass
             localSymbolCounter = 0
-#            while localSymbolCounter < verticalSymbolCounter:
             while localSymbolCounter < verticalSymbolCounter and currentSymbol < len(encrypted_text):
                 verticalColumn.append(encrypted_text[currentSymbol])
                 currentSymbol += 1
@@ -645,7 +628,6 @@ class Transposition2CPassword():
         currentlyReadLine = 0
         decryptedText = ''
         while readCharacters < len(encrypted_text):
-            test = len(order)
             if currentlyReadLine >= len(order):
                 currentlyReadLine = 0
             tempAmountOfCharacters = order[currentlyReadLine]
@@ -655,8 +637,6 @@ class Transposition2CPassword():
                     processedCharacter = newArray[tempCharactersRead][0]
                     del newArray[tempCharactersRead][0]
                     decryptedText += processedCharacter
-                    #tempCharactersRead += 1
-                    #readCharacters += 1
                 except:
                     pass
                 finally:
