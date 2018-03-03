@@ -892,9 +892,9 @@ class Menu():
                     command=partial(Caesar), text='Szyfr Cezara', height=2)
         caesarB.grid(column=1, sticky=E + W, padx=10, pady=10)
 
-        caesarB = Button(rootC,
+        vigenereB = Button(rootC,
                     command=partial(Vigenere), text='Szyfr Vigenere\'a', height=2)
-        caesarB.grid(column=1, sticky=E + W, padx=10, pady=10)
+        vigenereB.grid(column=1, sticky=E + W, padx=10, pady=10)
 
         rootC.mainloop()
 
