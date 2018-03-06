@@ -493,7 +493,7 @@ class Transposition2CPassword():
             order.append(position)
             listedChars[position] = ' '
 
-        charactersAmount = 0
+        charactersAmount = order[0]
 
         while passedNumbers < len(plainText):
             currentCharacterAmount = 0
@@ -569,12 +569,12 @@ class Transposition2CPassword():
             order.append(position)
             listedChars[position] = ' '
 
-        charactersAmount = 0
+        charactersAmount = order[0]
         tempEncryptedArray = []
         # create a 2D mock-array that looks the same as the "encrypted" array, but is filled with X characters for now
         while passedNumbers < len(encrypted_text):
             currentRow = 0
-            currentCharacterAmount = order[currentRow]
+            currentCharacterAmount = 0
             row = []
             while currentCharacterAmount < charactersAmount+1 and passedNumbers < len(encrypted_text):
                 row.append('X')
