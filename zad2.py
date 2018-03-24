@@ -1,9 +1,9 @@
 import sys
 from functools import partial
 
-reload(sys)
-sys.setdefaultencoding('Cp1250')
-from Tkinter import *
+# reload(sys)
+# sys.setdefaultencoding('Cp1250')
+from tkinter import *
 
 global maincolor, error
 maincolor = '#0288d1'
@@ -120,12 +120,6 @@ class RailFence():
 
             currentIteration += 1
 
-
-
-
-
-
-
 class CiphertextAutokey():
     def __init__(self):
         global rootB, polynomialText, seedText, inputEntry, outputEntry
@@ -149,13 +143,9 @@ class CiphertextAutokey():
         inputEntry = Text(rootB, height=1)
         outputEntry = Text(rootB, height=1)
 
-        variable = StringVar(rootB)
-        variable.set("Enkrypcja")  # default value
-
-
         polynomialText.insert('1.0', '11001')
         seedText.insert('1.0', '11111')
-        inputEntry.insert('1.0', 'dec.jpg')
+        inputEntry.insert('1.0', 'decodedphoto.jpg')
         outputEntry.insert('1.0', 'output.bin')
 
 
@@ -164,11 +154,11 @@ class CiphertextAutokey():
         inputEntry.grid(row=3, column=1, sticky=E + W, padx=10, pady=10)
         outputEntry.grid(row=4, column=1, sticky=E + W, padx=10, pady=10)
 
-        encodeB = Button(rootB, command=self.encrypt, text='Enkoduj')
+        encodeB = Button(rootB, command=partial(self.ciphertext, 'encrypt'), text='Enkoduj')
         encodeB.grid(columnspan=2, sticky=E + W, padx=10, pady=10)
 
-        #encodeB = Button(rootB, command=self.decrypt, text='Dekoduj')
-        #encodeB.grid(columnspan=2, sticky=E + W, padx=10, pady=10)
+        encodeB = Button(rootB, command=partial(self.ciphertext, 'decrypt'), text='Dekoduj')
+        encodeB.grid(columnspan=2, sticky=E + W, padx=10, pady=10)
 
         rootB.mainloop()
 
@@ -179,17 +169,14 @@ class CiphertextAutokey():
         while currentXorsLeft >= 0:
             byteToBeXored = bool(int(currentAutomataState[ones[currentXorsLeft]])) != byteToBeXored
             currentXorsLeft -= 1
-        #resultsText.insert(END, ' iteracja: ' + 'wychodzi: ' + str(int(currentAutomataState[-1])) + '\n')
 
         currentAutomataState = [currentAutomataState[-1]] + currentAutomataState[:-1] # przesuniecie w prawo
         currentAutomataState[0] = int(byteToBeXored)
 
-        currentStateString = "".join(str(x) for x in currentAutomataState)
-
         return byteToBeXored, currentAutomataState
 
 
-    def encrypt(self):
+    def ciphertext(self, mode):
         polynomial = polynomialText.get('1.0', 'end').rstrip()
         seed = seedText.get('1.0', 'end').rstrip()
         input = inputEntry.get('1.0', 'end').rstrip()
@@ -206,8 +193,17 @@ class CiphertextAutokey():
 
         import numpy as np
 
-        f = open(input, "r")
-        a = np.fromfile(f, dtype=np.uint8)
+        try:
+            f = open(input, "r")
+            a = np.fromfile(f, dtype=np.uint8)
+        except:
+            r = Tk()
+            r.configure(bg=error)
+            r.title('Blad')
+            r.geometry('350x50')
+            rlbl = Label(r, text='\n[!] Plik wejsciowy nie istnieje.')
+            rlbl.pack()
+            return
 
         file_object = open(output, 'wb')
 
@@ -233,35 +229,23 @@ class CiphertextAutokey():
         currentAutomataState = seedArray
         ones = [num for num, value in enumerate(polyArray) if value == '1' and num != len(polyArray)-1]
 
-        encryptionResults = []
-
-        for i in range(0, len(a)):
-            result, automata = self.encryptSelectBit(a, ones, currentAutomataState, bytes(a[i]))
-            encryptionResults.append(result)
-            currentAutomataState = automata
-            if i > 50000:
-                test = 1
-        test = 1
-
-        # for i in range(0, len(a)):
-        #     textEncryptionResult = 0
-        #     for j in range(0, 8):
-        #         byteToBeXored, currentAutomataState = self.generateLsfr(ones, currentAutomataState)
-        #
-        #         byteInputCharacter = bytes(a[i])
-        #
-        #         byteToXor = bytes(int(byteInputCharacter) & 2**j)
-        #         movedByteToXor = int(byteToXor) >> j
-        #
-        #         byteToBeXored = movedByteToXor != byteToBeXored
-        #
-        #         currentAutomataState[0] = int(byteToBeXored)
-        #
-        #         textEncryptionResult = bytes( int(textEncryptionResult) | (int(byteToBeXored) << j))
-        #     #encryptionResults.append(str(textEncryptionResult))
-        #     encryptionResults = np.append(encryptionResults, str(textEncryptionResult))
-        #
-        # encryptionResults.astype('int8').tofile(file_object)
+        if mode is 'encrypt':
+            for i in range(0, len(a)):
+                result, automata = self.encryptSelectBit(a, ones, currentAutomataState, a[i])
+                file_object.write(result)
+                currentAutomataState = automata
+        else:
+            for i in range(0, len(a)):
+                result, automata = self.decryptSelectBit(a, ones, currentAutomataState, a[i])
+                file_object.write(result)
+                currentAutomataState = automata
+        r = Tk()
+        r.configure(bg=error)
+        r.title('Informacja')
+        r.geometry('350x50')
+        rlbl = Label(r, text='\n[!] Algorytm zakonczyl dzialanie')
+        rlbl.pack()
+        return
 
     def encryptSelectBit(self, a, ones, currentAutomataState, byteInputCharacter):
         textEncryptionResult = 0
@@ -270,38 +254,31 @@ class CiphertextAutokey():
 
             byteInputCharacter = byteInputCharacter
 
-            byteToXor = bytes(int(byteInputCharacter) & 2**j)
+            byteToXor = str(int(byteInputCharacter) & 2**j)
             movedByteToXor = int(byteToXor) >> j
 
             byteToBeXored = movedByteToXor != byteToBeXored
 
             currentAutomataState[0] = int(byteToBeXored)
+            textEncryptionResult = textEncryptionResult | (int(byteToBeXored) << j)
+        return bytes([textEncryptionResult]), currentAutomataState
 
-            textEncryptionResult = bytes( int(textEncryptionResult) | (int(byteToBeXored) << j))
-        return str(textEncryptionResult), currentAutomataState
-            #encryptionResults = np.append(encryptionResults, str(textEncryptionResult))
+    def decryptSelectBit(self, a, ones, currentAutomataState, byteInputCharacter):
+        textEncryptionResult = 0
+        for j in range(0, 8):
+            byteToBeXored, currentAutomataState = self.generateLsfr(ones, currentAutomataState)
 
-        #encryptionResults.astype('int8').tofile(file_object)
+            byteInputCharacter = byteInputCharacter
 
+            byteToXor = str(int(byteInputCharacter) & 2**j)
+            movedByteToXor = int(byteToXor) >> j
 
-            # currentXorsLeft = len(ones)-1
-        # byteToBeXored = bool(int(currentAutomataState[-1]))
-        #
-        # while currentXorsLeft >= 0:
-        #     byteToBeXored = bool(int(currentAutomataState[ones[currentXorsLeft]])) != byteToBeXored
-        #     currentXorsLeft -= 1
-        # resultsText.insert(END, ' iteracja: ' + 'wychodzi: ' + str(int(currentAutomataState[-1])) + '\n')
-        #
-        # currentAutomataState = [currentAutomataState[-1]] + currentAutomataState[:-1] # przesuniecie w prawo
-        # currentAutomataState[0] = int(byteToBeXored)
-        #
-        # currentStateString = "".join(str(x) for x in currentAutomataState)
-        #
-        # resultsText.insert(END, ' iteracja: ' + 'Wygenerowana liczba: ' + str(int(byteToBeXored)))
-        # resultsText.insert(END, '\nObecny stan automatu: ' + currentStateString + ' (' + str(int(currentStateString, 2)) + ')' + '\n')
-        # resultsText.insert(END, '------------------'+ '\n')
+            byteToBeXored = movedByteToXor != byteToBeXored
 
+            currentAutomataState[0] = int(movedByteToXor)
 
+            textEncryptionResult =  textEncryptionResult | (int(byteToBeXored) << j)
+        return bytes([textEncryptionResult]), currentAutomataState
 
 class Menu():
     def __init__(self):
@@ -318,6 +295,5 @@ class Menu():
         ciphertextAutokey.grid(column=2, sticky=E + W, padx=10, pady=10)
 
         rootC.mainloop()
-
 
 Menu()
