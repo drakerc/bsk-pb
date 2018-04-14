@@ -87,6 +87,14 @@ class CiphertextAutokey():
             out_arr.append(ord(it))
 
         file_object.write(bytearray(out_arr))
+        
+        r = Tk()
+        r.configure(bg=error)
+        r.title('Informacja')
+        r.geometry('350x50')
+        rlbl = Label(r, text='\n[!] Algorytm zakonczyl dzialanie')
+        rlbl.pack()
+        return
 
 
 class Menu():
