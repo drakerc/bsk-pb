@@ -264,9 +264,6 @@ class Des:
     def permut(self, block, table):  # Permut the given block using the given table (so generic method)
         return [block[x - 1] for x in table]
 
-    def expand(self, block, table):  # Do the exact same thing than permut but for more clarity has been renamed
-        return [block[x - 1] for x in table]
-
     def xor(self, t1, t2):  # Apply a xor and return the resulting list
         return [x ^ y for x, y in zip(t1, t2)]
 
@@ -320,7 +317,7 @@ class Des:
             g, d = self.nsplit(block, 32)  # g(LEFT), d(RIGHT)
             tmp = None
             for i in range(16):  # Do the 16 rounds
-                d_e = self.expand(d, self.E)  # Expand d to match Ki size (48bits)
+                d_e = self.permut(d, self.E)  # Expand d to match Ki size (48bits)
                 if action == self.ENCRYPT:
                     tmp = self.xor(self.keys[i], d_e)  # If encrypt use Ki
                 else:
