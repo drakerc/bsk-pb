@@ -70,17 +70,42 @@ class CiphertextAutokey():
             rlbl.pack()
             return
 
+        # KEY LOADED FROM FILE
+        try:
+            key_file = open(seed, "r")
+            key_arr = np.fromfile(key_file, dtype=np.uint8)
+        except:
+            r = Tk()
+            r.configure(bg=error)
+            r.title('Blad')
+            r.geometry('350x50')
+            rlbl = Label(r, text='\n[!] Plik seedowy nie istnieje.')
+            rlbl.pack()
+            return
+
         file_object = open(output, 'wb')
         a_str = ''
         for it in a:
             a_str += str(chr(it))
 
+        key_str = ''
+        for it in key_arr:
+            key_str += str(chr(it))
+
         d = Des()
 
+        # KEY IS A STANDARD STRING
+        # if type == 'encode':
+        #     out = d.encrypt(str(seed), a_str, True)
+        # else:
+        #     out = d.decrypt(str(seed), a_str, True)
+
+        # KEY FROM A FILE
         if type == 'encode':
-            out = d.encrypt(str(seed), a_str, True)
+            out = d.encrypt(key_str, a_str, True)
         else:
-            out = d.decrypt(str(seed), a_str, True)
+            out = d.decrypt(key_str, a_str, True)
+
 
         out_arr = []
         for it in out:
