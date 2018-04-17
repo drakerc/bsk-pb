@@ -88,6 +88,7 @@ class CiphertextAutokey():
         for it in a:
             a_str += str(chr(it))
 
+        # KEY FROM A FILE
         key_str = ''
         for it in key_arr:
             key_str += str(chr(it))
