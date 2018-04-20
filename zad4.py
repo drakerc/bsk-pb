@@ -71,17 +71,17 @@ class CiphertextAutokey():
             return
 
         # KEY LOADED FROM FILE
-        try:
-            key_file = open(seed, "r")
-            key_arr = np.fromfile(key_file, dtype=np.uint8)
-        except:
-            r = Tk()
-            r.configure(bg=error)
-            r.title('Blad')
-            r.geometry('350x50')
-            rlbl = Label(r, text='\n[!] Plik seedowy nie istnieje.')
-            rlbl.pack()
-            return
+        # try:
+        #     key_file = open(seed, "r")
+        #     key_arr = np.fromfile(key_file, dtype=np.uint8)
+        # except:
+        #     r = Tk()
+        #     r.configure(bg=error)
+        #     r.title('Blad')
+        #     r.geometry('350x50')
+        #     rlbl = Label(r, text='\n[!] Plik seedowy nie istnieje.')
+        #     rlbl.pack()
+        #     return
 
         file_object = open(output, 'wb')
         a_str = ''
@@ -89,23 +89,23 @@ class CiphertextAutokey():
             a_str += str(chr(it))
 
         # KEY FROM A FILE
-        key_str = ''
-        for it in key_arr:
-            key_str += str(chr(it))
+        # key_str = ''
+        # for it in key_arr:
+        #     key_str += str(chr(it))
 
         d = Des()
 
         # KEY IS A STANDARD STRING
-        # if type == 'encode':
-        #     out = d.encrypt(str(seed), a_str, True)
-        # else:
-        #     out = d.decrypt(str(seed), a_str, True)
+        if type == 'encode':
+            out = d.encrypt(str(seed), a_str, True)
+        else:
+            out = d.decrypt(str(seed), a_str, True)
 
         # KEY FROM A FILE
-        if type == 'encode':
-            out = d.encrypt(key_str, a_str, True)
-        else:
-            out = d.decrypt(key_str, a_str, True)
+        # if type == 'encode':
+        #     out = d.encrypt(key_str, a_str, True)
+        # else:
+        #     out = d.decrypt(key_str, a_str, True)
 
 
         out_arr = []
@@ -275,12 +275,22 @@ class Des:
         return [list[k:k + list_size] for k in range(0, len(list), list_size)]
 
     def sbox_substitute(self, to_substitute):
+        # print('***** SBOX *****')
         splitted = self.split_into_length(to_substitute, 6)  # 6 bits
+        # print('ARRAY BEFORE SPLIT: ' + str(to_substitute))
+        # print('AFTER: ' + str(splitted))
         results = []
         for i in range(len(splitted)):  # For all the sublists
+            # print('ITERATION #'+str(i))
             block = splitted[i]
-            val = self.S_BOX[i][int(str(block[0]) + str(block[5]), 2)][int(''.join([str(x) for x in block[1:][:-1]]), 2)] # find the value from SBOX for proper row and column
+            # print('BLOCK (pre-substitute) ' + str(block))
+            j = int(str(block[0]) + str(block[5]), 2)
+            k = int(''.join([str(x) for x in block[1:][:-1]]), 2)
+            val = self.S_BOX[i][j][k] # find the value from SBOX for proper row and column
+            # print('value from SBOX[' + str(i) + '][' + str(j) + '][' +str(k) + '] is ' + str(val))
             results += [int(x) for x in self.get_binary_value(val, 4)]
+            # print('Current results state: ' + str(results))
+        # print('**** SBOX RESULT: ' + str(results))
         return results
 
     def permutate(self, block, table):
@@ -295,10 +305,16 @@ class Des:
     def generate_keys(self):  # Algorithm that generates all the keys
         key = self.string_to_bit_array(self.key)
         key = self.permutate(key, self.CP_1)
+        # print('***** KEY GENERATION *****')
+        # print('Initial key: ' + str(key))
         left, right = self.split_into_length(key, 28)  # Split it in to (g->LEFT),(d->RIGHT)
         for i in range(16):  # Apply the 16 rounds
+            # print('ITERATION #' + str(i) + '\nleft (pre-shift): ' + str(left) + '\n right (pre-shift): ' + str(right))
             left, right = self.shift(left, right, self.SHIFT[i])  # Apply the shift associated with the round (not always 1)
+            # print('left (post-shift): ' + str(left) + '\n right (post-shift): ' + str(right))
             permutated_second_time = self.permutate(left + right, self.CP_2)
+            # print('ITERATION RESULT: ' + str(permutated_second_time))
+            # print(' *** END ITERATION ***')
             self.keys.append(permutated_second_time)
 
     def encrypt(self, key, text, padding=False):
@@ -325,28 +341,43 @@ class Des:
         if padding and action == self.ENCRYPT:
             pad_len = 8 - (len(self.text) % 8) # add padding
             self.text += pad_len * chr(pad_len)
-
+        # print('**** KEY GENERATING ****')
         self.generate_keys()
+        # print('key: ' + str(self.keys))
+        # print('*************')
         text_blocks = self.split_into_length(self.text, 8)  # split the input into 8-byte blocks (64bit)
         results = []
         for block in text_blocks:  # Loop over all the blocks of data
+            #print('BLOCK pre-algorithm: ' + str(block))
             block = self.permutate(self.string_to_bit_array(block), self.PI) # first permutation
             left, right = self.split_into_length(block, 32)  # g(LEFT), d(RIGHT)
+            #print('**** ALGORITHM ****')
             for i in range(16):  # Do the 16 rounds
+                #print('ITERATION #' + str(i) + '\nleft (initial): ' + str(left) + '\n right (initial): ' + str(right))
                 expanded_right = self.permutate(right, self.E)  # Expand right to match Ki size of 48bits by permutating using E
+                #print('RIGHT after expanding to 48b: ' + str(expanded_right))
                 if action == self.ENCRYPT:
                     tmp = self.xor(self.keys[i], expanded_right)  # If encrypt use Ki
                 else:
                     tmp = self.xor(self.keys[15 - i], expanded_right)  # If decrypt start by the last key
+                #print('RIGHT TMP after XOR with key: ' + str(tmp))
                 tmp = self.permutate(self.sbox_substitute(tmp), self.P)
+                #print('RIGHT TMP after SBOX substituting: ' + str(tmp))
                 tmp = self.xor(left, tmp)
                 left = right
                 right = tmp
+                #print('ITERATION #'+ str(i) +'RESULTS\nLEFT: ' + str(left) + '\nRIGHT: ' + str(right))
+            #print('*****')
+            ##print('LEFT AND RIGHT ARRAYS before inverted permutation\nLEFT:' + str(left) + '\nRIGHT:' + str(right))
             results += self.permutate(right + left, self.PI_1)  # last permutation on what we received
+            #print('RESULTS (so far): ' + str(results))
+        # #print('PRE-FINAL RESULT: ' + str(results))
         final_res = self.bit_array_to_string(results)
         if padding and action == self.DECRYPT:
+            #print('DECRYPT RESULT: ' + str(self.string_to_bit_array(final_res[:-ord(final_res[-1])])))
             return final_res[:-ord(final_res[-1])] # remove padding
         else:
+            #print('ENCRYPT RESULT: ' + str(results))
             return final_res
 
 Menu()
