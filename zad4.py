@@ -149,7 +149,7 @@ class Des:
           61, 53, 45, 37, 29, 21, 13, 5,
           63, 55, 47, 39, 31, 23, 15, 7]
 
-    CP_1 = [57, 49, 41, 33, 25, 17, 9,
+    PC_1 = [57, 49, 41, 33, 25, 17, 9,
             1, 58, 50, 42, 34, 26, 18,
             10, 2, 59, 51, 43, 35, 27,
             19, 11, 3, 60, 52, 44, 36,
@@ -158,7 +158,7 @@ class Des:
             14, 6, 61, 53, 45, 37, 29,
             21, 13, 5, 28, 20, 12, 4]
 
-    CP_2 = [14, 17, 11, 24, 1, 5, 3, 28,
+    PC_2 = [14, 17, 11, 24, 1, 5, 3, 28,
             15, 6, 21, 10, 23, 19, 12, 4,
             26, 8, 16, 7, 27, 20, 13, 2,
             41, 52, 31, 37, 47, 55, 30, 40,
@@ -275,10 +275,10 @@ class Des:
         return [list[k:k + list_size] for k in range(0, len(list), list_size)]
 
     def sbox_substitute(self, to_substitute):
-        # print('***** SBOX *****')
+        print('***** SBOX *****')
         splitted = self.split_into_length(to_substitute, 6)  # 6 bits
         # print('ARRAY BEFORE SPLIT: ' + str(to_substitute))
-        # print('AFTER: ' + str(splitted))
+        # print('AFTER SPLIT: ' + str(splitted))
         results = []
         for i in range(len(splitted)):  # For all the sublists
             # print('ITERATION #'+str(i))
@@ -290,7 +290,7 @@ class Des:
             # print('value from SBOX[' + str(i) + '][' + str(j) + '][' +str(k) + '] is ' + str(val))
             results += [int(x) for x in self.get_binary_value(val, 4)]
             # print('Current results state: ' + str(results))
-        # print('**** SBOX RESULT: ' + str(results))
+        # print('**** SBOX RESULT: ' + str(results) + ' ****')
         return results
 
     def permutate(self, block, table):
@@ -304,17 +304,17 @@ class Des:
 
     def generate_keys(self):  # Algorithm that generates all the keys
         key = self.string_to_bit_array(self.key)
-        key = self.permutate(key, self.CP_1)
-        # print('***** KEY GENERATION *****')
-        # print('Initial key: ' + str(key))
+        key = self.permutate(key, self.PC_1)
+        print('***** KEY GENERATION *****')
+        print('Initial key: ' + str(key))
         left, right = self.split_into_length(key, 28)  # Split it in to (g->LEFT),(d->RIGHT)
         for i in range(16):  # Apply the 16 rounds
-            # print('ITERATION #' + str(i) + '\nleft (pre-shift): ' + str(left) + '\n right (pre-shift): ' + str(right))
+            print('ITERATION #' + str(i) + '\nleft (pre-shift): ' + str(left) + '\n right (pre-shift): ' + str(right))
             left, right = self.shift(left, right, self.SHIFT[i])  # Apply the shift associated with the round (not always 1)
-            # print('left (post-shift): ' + str(left) + '\n right (post-shift): ' + str(right))
-            permutated_second_time = self.permutate(left + right, self.CP_2)
-            # print('ITERATION RESULT: ' + str(permutated_second_time))
-            # print(' *** END ITERATION ***')
+            print('left (post-shift): ' + str(left) + '\n right (post-shift): ' + str(right))
+            permutated_second_time = self.permutate(left + right, self.PC_2)
+            print('ITERATION RESULT: ' + str(permutated_second_time))
+            print('*** END ITERATION ***')
             self.keys.append(permutated_second_time)
 
     def encrypt(self, key, text, padding=False):
@@ -341,43 +341,46 @@ class Des:
         if padding and action == self.ENCRYPT:
             pad_len = 8 - (len(self.text) % 8) # add padding
             self.text += pad_len * chr(pad_len)
-        # print('**** KEY GENERATING ****')
+        print('**** KEY GENERATING ****')
         self.generate_keys()
-        # print('key: ' + str(self.keys))
-        # print('*************')
+        print('key: ' + str(self.keys))
+        print('*************')
         text_blocks = self.split_into_length(self.text, 8)  # split the input into 8-byte blocks (64bit)
         results = []
         for block in text_blocks:  # Loop over all the blocks of data
-            #print('BLOCK pre-algorithm: ' + str(block))
+            print('BLOCK pre-algorithm: ' + str(block))
             block = self.permutate(self.string_to_bit_array(block), self.PI) # first permutation
             left, right = self.split_into_length(block, 32)  # g(LEFT), d(RIGHT)
-            #print('**** ALGORITHM ****')
+            print('**** ALGORITHM ****')
             for i in range(16):  # Do the 16 rounds
-                #print('ITERATION #' + str(i) + '\nleft (initial): ' + str(left) + '\n right (initial): ' + str(right))
+                print('ITERATION #' + str(i) + '\nleft (initial): ' + str(left) + '\n right (initial): ' + str(right))
                 expanded_right = self.permutate(right, self.E)  # Expand right to match Ki size of 48bits by permutating using E
-                #print('RIGHT after expanding to 48b: ' + str(expanded_right))
+                # print('RIGHT after expanding to 48b: ' + str(expanded_right))
                 if action == self.ENCRYPT:
                     tmp = self.xor(self.keys[i], expanded_right)  # If encrypt use Ki
                 else:
                     tmp = self.xor(self.keys[15 - i], expanded_right)  # If decrypt start by the last key
-                #print('RIGHT TMP after XOR with key: ' + str(tmp))
+                # print('RIGHT TMP after XOR with key: ' + str(tmp))
                 tmp = self.permutate(self.sbox_substitute(tmp), self.P)
-                #print('RIGHT TMP after SBOX substituting: ' + str(tmp))
+                # print('RIGHT TMP after SBOX substituting: ' + str(tmp))
                 tmp = self.xor(left, tmp)
                 left = right
                 right = tmp
-                #print('ITERATION #'+ str(i) +'RESULTS\nLEFT: ' + str(left) + '\nRIGHT: ' + str(right))
-            #print('*****')
-            ##print('LEFT AND RIGHT ARRAYS before inverted permutation\nLEFT:' + str(left) + '\nRIGHT:' + str(right))
-            results += self.permutate(right + left, self.PI_1)  # last permutation on what we received
+                print('ITERATION #'+ str(i) +' RESULTS\nLEFT: ' + str(left) + '\nRIGHT: ' + str(right))
+            print('*****')
+            print('LEFT AND RIGHT ARRAYS before inverted permutation\nLEFT:' + str(left) + '\nRIGHT:' + str(right))
+            print('*****')
+            iteration_result = self.permutate(right + left, self.PI_1)  # last permutation on what we received
+            print('BLOCK RESULT: ' + str(iteration_result))
+            results += iteration_result
             #print('RESULTS (so far): ' + str(results))
-        # #print('PRE-FINAL RESULT: ' + str(results))
+        # print('PRE-FINAL RESULT: ' + str(results))
         final_res = self.bit_array_to_string(results)
         if padding and action == self.DECRYPT:
-            #print('DECRYPT RESULT: ' + str(self.string_to_bit_array(final_res[:-ord(final_res[-1])])))
+            # print('DECRYPT RESULT: ' + str(self.string_to_bit_array(final_res[:-ord(final_res[-1])])))
             return final_res[:-ord(final_res[-1])] # remove padding
         else:
-            #print('ENCRYPT RESULT: ' + str(results))
+            # print('ENCRYPT RESULT: ' + str(results))
             return final_res
 
 Menu()
