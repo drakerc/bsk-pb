@@ -274,22 +274,28 @@ class Des:
     def split_into_length(self, list, list_size): #make a list of size "n" from another list
         return [list[k:k + list_size] for k in range(0, len(list), list_size)]
 
-    def sbox_substitute(self, to_substitute):
-        print('***** SBOX *****')
+    def sbox_substitute(self, to_substitute, index):
+
         splitted = self.split_into_length(to_substitute, 6)  # 6 bits
-        # print('ARRAY BEFORE SPLIT: ' + str(to_substitute))
-        # print('AFTER SPLIT: ' + str(splitted))
+        if index == 0:
+            print('***** SBOX *****')
+            print('ARRAY BEFORE SPLIT: ' + str(to_substitute))
+            print('AFTER SPLIT: ' + str(splitted))
         results = []
         for i in range(len(splitted)):  # For all the sublists
-            # print('ITERATION #'+str(i))
+            if index == 0:
+                print('ITERATION #'+str(i))
             block = splitted[i]
-            # print('BLOCK (pre-substitute) ' + str(block))
+            if index == 0:
+                print('BLOCK (pre-substitute) ' + str(block))
             j = int(str(block[0]) + str(block[5]), 2)
             k = int(''.join([str(x) for x in block[1:][:-1]]), 2)
             val = self.S_BOX[i][j][k] # find the value from SBOX for proper row and column
-            # print('value from SBOX[' + str(i) + '][' + str(j) + '][' +str(k) + '] is ' + str(val))
+            if index == 0:
+                print('value from SBOX[' + str(i) + '][' + str(j) + '][' +str(k) + '] is ' + str(val))
             results += [int(x) for x in self.get_binary_value(val, 4)]
-            # print('Current results state: ' + str(results))
+            if index == 0:
+                print('Current results state: ' + str(results))
         # print('**** SBOX RESULT: ' + str(results) + ' ****')
         return results
 
@@ -347,31 +353,42 @@ class Des:
         print('*************')
         text_blocks = self.split_into_length(self.text, 8)  # split the input into 8-byte blocks (64bit)
         results = []
-        for block in text_blocks:  # Loop over all the blocks of data
-            print('BLOCK pre-algorithm: ' + str(block))
+        for index, block in enumerate(text_blocks):  # Loop over all the blocks of data
             block = self.permutate(self.string_to_bit_array(block), self.PI) # first permutation
+            if index == 0:
+                print('BLOCK pre-algorithm: ' + str(block))
             left, right = self.split_into_length(block, 32)  # g(LEFT), d(RIGHT)
-            print('**** ALGORITHM ****')
+            if index == 0:
+                print('**** ALGORITHM ****')
             for i in range(16):  # Do the 16 rounds
-                print('ITERATION #' + str(i) + '\nleft (initial): ' + str(left) + '\n right (initial): ' + str(right))
+                if index == 0:
+                    print('ITERATION #' + str(i) + '\nleft (initial): ' + str(left) + '\n right (initial): ' + str(right))
+
                 expanded_right = self.permutate(right, self.E)  # Expand right to match Ki size of 48bits by permutating using E
-                # print('RIGHT after expanding to 48b: ' + str(expanded_right))
+                if index == 0:
+                    print('RIGHT after expanding to 48b: ' + str(expanded_right))
                 if action == self.ENCRYPT:
                     tmp = self.xor(self.keys[i], expanded_right)  # If encrypt use Ki
                 else:
                     tmp = self.xor(self.keys[15 - i], expanded_right)  # If decrypt start by the last key
-                # print('RIGHT TMP after XOR with key: ' + str(tmp))
-                tmp = self.permutate(self.sbox_substitute(tmp), self.P)
-                # print('RIGHT TMP after SBOX substituting: ' + str(tmp))
+                if index == 0:
+                    print('RIGHT TMP after XOR with key: ' + str(tmp))
+                tmp = self.permutate(self.sbox_substitute(tmp, index), self.P)  # sbox substitute with passing index
+                                                                                # to prevent overprinting
+                if index == 0:
+                    print('RIGHT TMP after SBOX substituting: ' + str(tmp))
                 tmp = self.xor(left, tmp)
                 left = right
                 right = tmp
-                print('ITERATION #'+ str(i) +' RESULTS\nLEFT: ' + str(left) + '\nRIGHT: ' + str(right))
-            print('*****')
-            print('LEFT AND RIGHT ARRAYS before inverted permutation\nLEFT:' + str(left) + '\nRIGHT:' + str(right))
-            print('*****')
+                if index == 0:
+                    print('ITERATION #'+ str(i) +' RESULTS\nLEFT: ' + str(left) + '\nRIGHT: ' + str(right))
+            if index == 0:
+                print('*****')
+                print('LEFT AND RIGHT ARRAYS before inverted permutation\nLEFT:' + str(left) + '\nRIGHT:' + str(right))
+                print('*****')
             iteration_result = self.permutate(right + left, self.PI_1)  # last permutation on what we received
-            print('BLOCK RESULT: ' + str(iteration_result))
+            if index == 0:
+                print('BLOCK RESULT: ' + str(iteration_result))
             results += iteration_result
             #print('RESULTS (so far): ' + str(results))
         # print('PRE-FINAL RESULT: ' + str(results))
